@@ -1,32 +1,43 @@
-# Load the configuration file
+# Load configuration files
 $dbConfigPath = ".\Config\dbConfig.json"
-$dbConfig = Get-Content -Path $dbConfigPath | ConvertFrom-Json
-
 $dirConfigPath = ".\Config\dirConfig.json"
-$dirConfig = Get-Content -Path $dirConfigPath | ConvertFrom-Json
-# $projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Definition  # Get the current project directory
 
-# Define SQL Server instance and database details from config
+if (!(Test-Path -Path $dbConfigPath)) {
+    Write-Host "Database config file not found: $dbConfigPath"
+    exit
+}
+
+if (!(Test-Path -Path $dirConfigPath)) {
+    Write-Host "Directory config file not found: $dirConfigPath"
+    exit
+}
+
+$dbConfig = Get-Content -Path $dbConfigPath | ConvertFrom-Json
+$dirConfig = Get-Content -Path $dirConfigPath | ConvertFrom-Json
+
+# Extract configurations
 $serverName = $dbConfig.ServerName
 $databaseName = $dbConfig.DatabaseName
+$userName = $dbConfig.UserName
+$password = $dbConfig.Password
 $backupFolder = $dirConfig.BackupFolder
 $logFolder = $dirConfig.LogFolder 
 
-# Ensure the output and logs directories exist
-if (-not (Test-Path $backupFolder)) {
-    New-Item -Path $backupFolder -ItemType Directory
+# Ensure the backup and log directories exist
+if (!(Test-Path -Path $backupFolder)) {
+    New-Item -Path $backupFolder -ItemType Directory -Force
 }
 
-if (-not (Test-Path $logFolder)) {
-    New-Item -Path $logFolder -ItemType Directory
+if (!(Test-Path -Path $logFolder)) {
+    New-Item -Path $logFolder -ItemType Directory -Force
 }
 
-# Define the backup file path with timestamp
+# Define the backup file and log file paths
 $backupFile = "$backupFolder\$databaseName_$(Get-Date -Format 'yyyyMMdd_HHmmss').bak"
 $logFile = "$logFolder\backup_$(Get-Date -Format 'yyyyMMdd').log"
 
-# Define the SQL Server connection string
-$connectionString = "Server=$serverName;Integrated Security=True;"
+# Define SQL Server connection string
+$connectionString = "Server=$serverName;Database=$databaseName;User ID=$userName;Password=$password;TrustServerCertificate=True;MultipleActiveResultSets=True;"
 
 # SQL query to perform the backup
 $query = "BACKUP DATABASE [$databaseName] TO DISK = N'$backupFile' WITH NOFORMAT, NOINIT, NAME = N'$databaseName Full Backup', SKIP, NOREWIND, NOUNLOAD, STATS = 10"

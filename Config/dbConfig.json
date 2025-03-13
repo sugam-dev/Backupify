@@ -1,4 +1,6 @@
 {
-    "ServerName": "DESKTOP-KRIEA3F\\PC-5",
-    "DatabaseName": "AWC_CMS_DB"
+  "ServerName": "103.109.6.232",
+  "DatabaseName": "AWC_CMS_V2_DB",
+  "UserName": "sa",
+  "Password": "Cspl@#$1234"
 }
