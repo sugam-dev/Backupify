@@ -1,6 +1,6 @@
 # Load configuration files
-$dbConfigPath = ".\Config\dbConfig.json"
-$dirConfigPath = ".\Config\dirConfig.json"
+$dbConfigPath = "./Config/dbConfig.json"
+$dirConfigPath = "./Config/dirConfig.json"
 
 if (!(Test-Path -Path $dbConfigPath)) {
     Write-Host "Database config file not found: $dbConfigPath"
